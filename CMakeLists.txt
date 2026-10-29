@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(nlpm C)
+project(nlpm VERSION 0.0.1 LANGUAGES C)
 
 include(CTest)
 include(cmake/CompilerWarnings.cmake)

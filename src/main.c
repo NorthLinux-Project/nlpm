@@ -6,7 +6,7 @@
 #include "config/config.h"
 #include "cmd/cmd.h"
 
-#define NLPM_VERSION "0.1.0"
+#define NLPM_VERSION "0.0.1"
 
 static void print_usage(const char *prog) {
     printf("nlpm - North Linux Package Manager %s\n\n", NLPM_VERSION);
