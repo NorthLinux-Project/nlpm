@@ -26,6 +26,7 @@ add_library(nlpm_core STATIC
   cmd/cmd_list.c
   cmd/cmd_owns.c
   cmd/cmd_build.c
+  cmd/cmd_index.c
 )
 
 target_compile_features(nlpm_core PUBLIC c_std_11)

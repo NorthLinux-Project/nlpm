@@ -20,7 +20,8 @@ static void print_usage(const char *prog) {
     printf("  info    <pkg>    Show detailed information about package\n");
     printf("  list             List installed packages\n");
     printf("  owns    <path>   Find package that owns a file\n");
-    printf("  build   <dir>    Build a .nlpkg package from directory\n\n");
+    printf("  build   <dir>    Build a .nlpkg package from directory\n");
+    printf("  index   <dir>    Generate .nldb database from directory\n\n");
     printf("Options:\n");
     printf("  -c <config_path> Use alternate configuration file\n");
     printf("  -r <root_dir>    Set an alternate installation root\n");
@@ -36,7 +37,7 @@ int main(int argc, char **argv) {
 
     const char *config_path = NULL;
     const char *root_override = NULL;
-    int cmd_index = -1;
+    int cmd_arg_index = -1;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -56,12 +57,12 @@ int main(int argc, char **argv) {
             continue;
         }
         if (argv[i][0] != '-') {
-            cmd_index = i;
+            cmd_arg_index = i;
             break;
         }
     }
 
-    if (cmd_index == -1) {
+    if (cmd_arg_index == -1) {
         print_usage(argv[0]);
         return 1;
     }
@@ -74,9 +75,9 @@ int main(int argc, char **argv) {
         cfg.rootdir = strdup(root_override);
     }
 
-    const char *command = argv[cmd_index];
-    int sub_argc = argc - cmd_index;
-    char **sub_argv = &argv[cmd_index];
+    const char *command = argv[cmd_arg_index];
+    int sub_argc = argc - cmd_arg_index;
+    char **sub_argv = &argv[cmd_arg_index];
 
     bool requires_root = (strcmp(command, "sync") == 0 ||
                           strcmp(command, "install") == 0 ||
@@ -109,6 +110,8 @@ int main(int argc, char **argv) {
         rc = cmd_owns(sub_argc, sub_argv, &cfg);
     } else if (strcmp(command, "build") == 0) {
         rc = cmd_build(sub_argc, sub_argv, &cfg);
+    } else if (strcmp(command, "index") == 0) {
+        rc = cmd_index(sub_argc, sub_argv, &cfg);
     } else {
         fprintf(stderr, "Error: Unknown command '%s'. Run '%s --help' for usage.\n", command, argv[0]);
         rc = 1;

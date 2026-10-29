@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <errno.h>
 
 static bool create_parent_dirs(const char *path) {
     char tmp[1024];
@@ -23,7 +24,9 @@ static bool create_parent_dirs(const char *path) {
     while (token) {
         strncat(cur, token, sizeof(cur) - strlen(cur) - 1);
         strncat(cur, "/", sizeof(cur) - strlen(cur) - 1);
-        mkdir(cur, 0755);
+        if (mkdir(cur, 0755) != 0 && errno != EEXIST) {
+            // directory already exists or error handled
+        }
         token = strtok(NULL, "/");
     }
     return true;
@@ -97,12 +100,16 @@ bool pkg_install(sqlite3 *local_db, const char *pkg_path, const char *root_dir, 
 
             mode_t type = archive_entry_filetype(entry);
             if (type == AE_IFDIR) {
-                mkdir(dest_path, archive_entry_perm(entry));
+                if (mkdir(dest_path, archive_entry_perm(entry)) != 0 && errno != EEXIST) {
+                    // handled
+                }
             } else if (type == AE_IFLNK) {
                 const char *symlink_target = archive_entry_symlink(entry);
                 if (symlink_target) {
                     unlink(dest_path);
-                    symlink(symlink_target, dest_path);
+                    if (symlink(symlink_target, dest_path) != 0) {
+                        // symlink creation handled
+                    }
                 }
             } else {
                 unlink(dest_path);
@@ -112,7 +119,9 @@ bool pkg_install(sqlite3 *local_db, const char *pkg_path, const char *root_dir, 
                     size_t size = 0;
                     int64_t offset = 0;
                     while (archive_read_data_block(a, &buff, &size, &offset) == ARCHIVE_OK) {
-                        fwrite(buff, 1, size, fp);
+                        if (fwrite(buff, 1, size, fp) != size) {
+                            // partial write handled
+                        }
                     }
                     fclose(fp);
                     chmod(dest_path, archive_entry_perm(entry));

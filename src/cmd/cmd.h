@@ -12,5 +12,6 @@ int cmd_info(int argc, char **argv, const NlpmConfig *cfg);
 int cmd_list(int argc, char **argv, const NlpmConfig *cfg);
 int cmd_owns(int argc, char **argv, const NlpmConfig *cfg);
 int cmd_build(int argc, char **argv, const NlpmConfig *cfg);
+int cmd_index(int argc, char **argv, const NlpmConfig *cfg);
 
 #endif
