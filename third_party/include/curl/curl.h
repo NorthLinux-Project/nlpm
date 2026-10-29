@@ -1,0 +1,157 @@
+#ifndef CURL_CURL_H
+#define CURL_CURL_H
+
+#include <stddef.h>
+#include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void CURL;
+typedef void CURLM;
+
+typedef enum {
+    CURLE_OK = 0,
+    CURLE_UNSUPPORTED_PROTOCOL,
+    CURLE_FAILED_INIT,
+    CURLE_URL_MALFORMAT,
+    CURLE_NOT_BUILT_IN,
+    CURLE_COULDNT_RESOLVE_PROXY,
+    CURLE_COULDNT_RESOLVE_HOST,
+    CURLE_COULDNT_CONNECT,
+    CURLE_WEIRD_SERVER_REPLY,
+    CURLE_REMOTE_ACCESS_DENIED,
+    CURLE_FTP_ACCEPT_FAILED,
+    CURLE_FTP_ACCEPT_TIMEOUT,
+    CURLE_FTP_PRET_FAILED,
+    CURLE_RTSP_CSEQ_ERROR,
+    CURLE_RTSP_SESSION_ERROR,
+    CURLE_FTP_BAD_FILE_LIST,
+    CURLE_CHUNK_FAILED,
+    CURLE_NO_CONNECTION_AVAILABLE,
+    CURLE_SSL_PINNEDPUBKEYNOTMATCH,
+    CURLE_SSL_INVALIDCERTSTATUS,
+    CURLE_HTTP2_STREAM,
+    CURLE_RECURSIVE_API_CALL,
+    CURLE_AUTH_ERROR,
+    CURLE_HTTP3,
+    CURLE_QUIC_CONNECT_ERROR,
+    CURLE_PROXY,
+    CURLE_SSL_CLIENTCERT,
+    CURLE_UNRECOVERABLE_POLL,
+    CURLE_TOO_LARGE,
+    CURLE_ECH_REQUIRED
+} CURLcode;
+
+typedef enum {
+    CURLM_CALL_MULTI_PERFORM = -1,
+    CURLM_OK = 0,
+    CURLM_BAD_HANDLE,
+    CURLM_BAD_EASY_HANDLE,
+    CURLM_OUT_OF_MEMORY,
+    CURLM_INTERNAL_ERROR,
+    CURLM_BAD_SOCKET,
+    CURLM_UNKNOWN_OPTION,
+    CURLM_ADDED_ALREADY,
+    CURLM_RECURSIVE_API_CALL,
+    CURLM_WONT_BLOCK
+} CURLMcode;
+
+typedef enum {
+    CURLMSG_NONE = 0,
+    CURLMSG_DONE
+} CURLMSG;
+
+typedef struct {
+    CURLMSG msg;
+    CURL *easy_handle;
+    union {
+        void *whatever;
+        CURLcode result;
+    } data;
+} CURLMsg;
+
+#define CURL_GLOBAL_SSL (1<<0)
+#define CURL_GLOBAL_WIN32 (1<<1)
+#define CURL_GLOBAL_ALL (CURL_GLOBAL_SSL|CURL_GLOBAL_WIN32)
+#define CURL_GLOBAL_NOTHING 0
+#define CURL_GLOBAL_DEFAULT CURL_GLOBAL_ALL
+
+#define CURLOPTTYPE_LONG          0
+#define CURLOPTTYPE_OBJECTPOINT   10000
+#define CURLOPTTYPE_FUNCTIONPOINT 20000
+#define CURLOPTTYPE_OFF_T         30000
+
+#define CINIT(na,t,nu) CURLOPT_ ## na = t + nu
+
+typedef enum {
+    CINIT(WRITEDATA, CURLOPTTYPE_OBJECTPOINT, 1),
+    CINIT(URL, CURLOPTTYPE_OBJECTPOINT, 2),
+    CINIT(PORT, CURLOPTTYPE_LONG, 3),
+    CINIT(PROXY, CURLOPTTYPE_OBJECTPOINT, 4),
+    CINIT(USERPWD, CURLOPTTYPE_OBJECTPOINT, 5),
+    CINIT(PROXYUSERPWD, CURLOPTTYPE_OBJECTPOINT, 6),
+    CINIT(RANGE, CURLOPTTYPE_OBJECTPOINT, 7),
+    CINIT(WRITEFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 11),
+    CINIT(TIMEOUT, CURLOPTTYPE_LONG, 13),
+    CINIT(INFILESIZE, CURLOPTTYPE_LONG, 14),
+    CINIT(POSTFIELDS, CURLOPTTYPE_OBJECTPOINT, 15),
+    CINIT(REFERER, CURLOPTTYPE_OBJECTPOINT, 16),
+    CINIT(FTPPORT, CURLOPTTYPE_OBJECTPOINT, 17),
+    CINIT(USERAGENT, CURLOPTTYPE_OBJECTPOINT, 18),
+    CINIT(LOW_SPEED_LIMIT, CURLOPTTYPE_LONG, 19),
+    CINIT(LOW_SPEED_TIME, CURLOPTTYPE_LONG, 20),
+    CINIT(RESUME_FROM, CURLOPTTYPE_LONG, 21),
+    CINIT(COOKIE, CURLOPTTYPE_OBJECTPOINT, 22),
+    CINIT(HTTPHEADER, CURLOPTTYPE_OBJECTPOINT, 23),
+    CINIT(HTTPPOST, CURLOPTTYPE_OBJECTPOINT, 24),
+    CINIT(SSLCERT, CURLOPTTYPE_OBJECTPOINT, 25),
+    CINIT(KEYPASSWD, CURLOPTTYPE_OBJECTPOINT, 26),
+    CINIT(FAILONERROR, CURLOPTTYPE_LONG, 45),
+    CINIT(FOLLOWLOCATION, CURLOPTTYPE_LONG, 52),
+    CINIT(PRIVATE, CURLOPTTYPE_OBJECTPOINT, 103),
+    CINIT(NOPROGRESS, CURLOPTTYPE_LONG, 43),
+    CINIT(CONNECTTIMEOUT, CURLOPTTYPE_LONG, 78)
+} CURLoption;
+
+#define CURLINFO_STRING   0x100000
+#define CURLINFO_LONG     0x200000
+#define CURLINFO_DOUBLE   0x300000
+#define CURLINFO_PTR      0x400000
+#define CURLINFO_SOCKET   0x500000
+#define CURLINFO_OFF_T    0x600000
+
+typedef enum {
+    CURLINFO_NONE = 0,
+    CURLINFO_EFFECTIVE_URL    = CURLINFO_STRING + 1,
+    CURLINFO_RESPONSE_CODE    = CURLINFO_LONG   + 2,
+    CURLINFO_PRIVATE          = CURLINFO_PTR    + 21
+} CURLINFO;
+
+const char *curl_version(void);
+CURLcode curl_global_init(long flags);
+void curl_global_cleanup(void);
+
+CURL *curl_easy_init(void);
+CURLcode curl_easy_setopt(CURL *curl, CURLoption option, ...);
+CURLcode curl_easy_perform(CURL *curl);
+void curl_easy_cleanup(CURL *curl);
+CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, ...);
+void curl_easy_reset(CURL *curl);
+const char *curl_easy_strerror(CURLcode);
+
+CURLM *curl_multi_init(void);
+CURLMcode curl_multi_add_handle(CURLM *multi_handle, CURL *curl_handle);
+CURLMcode curl_multi_remove_handle(CURLM *multi_handle, CURL *curl_handle);
+CURLMcode curl_multi_perform(CURLM *multi_handle, int *running_handles);
+CURLMcode curl_multi_poll(CURLM *multi_handle, void *extra_fds, unsigned int extra_nfds, int timeout_ms, int *numfds);
+CURLMsg *curl_multi_info_read(CURLM *multi_handle, int *msgs_in_queue);
+CURLMcode curl_multi_cleanup(CURLM *multi_handle);
+const char *curl_multi_strerror(CURLMcode);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
