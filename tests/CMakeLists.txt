@@ -9,6 +9,7 @@ function(add_unity_test test_target test_source)
   target_include_directories(${test_target}
     PRIVATE
       ${CMAKE_SOURCE_DIR}/src
+      ${CMAKE_SOURCE_DIR}/third_party/unity
   )
   add_test(NAME ${test_target} COMMAND ${test_target})
 endfunction()

@@ -41,7 +41,7 @@ void sha256_init(Sha256Context *ctx) {
     ctx->count = 0;
 }
 
-static void sha256_transform(Sha256Context *ctx, const uint8_t block[64]) {
+static void sha256_transform(Sha256Context *ctx, const uint8_t *block) {
     uint32_t w[64];
     for (size_t i = 0; i < 16; ++i) {
         w[i] = ((uint32_t)block[i * 4] << 24)

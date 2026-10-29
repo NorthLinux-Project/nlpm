@@ -19,9 +19,9 @@ endif()
 
 if(BUILD_TESTING)
   add_library(unity STATIC
-    third_party/unity/unity.c
-    third_party/unity/unity.h
-    third_party/unity/unity_internals.h
+    ${CMAKE_SOURCE_DIR}/third_party/unity/unity.c
+    ${CMAKE_SOURCE_DIR}/third_party/unity/unity.h
+    ${CMAKE_SOURCE_DIR}/third_party/unity/unity_internals.h
   )
-  target_include_directories(unity PUBLIC third_party/unity)
+  target_include_directories(unity PUBLIC ${CMAKE_SOURCE_DIR}/third_party/unity)
 endif()
